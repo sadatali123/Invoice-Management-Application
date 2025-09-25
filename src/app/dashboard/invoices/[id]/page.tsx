@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRef, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ArrowLeft, Download } from 'lucide-react';
@@ -117,10 +117,13 @@ const getInvoiceData = (id: string) => {
   return invoices[id as keyof typeof invoices];
 };
 
-export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default function InvoiceDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const { id } = params as { id: string };
   const invoiceRef = useRef<HTMLDivElement>(null);
-  const invoice = getInvoiceData(params.id);
+  const invoice = getInvoiceData(id);
   
   if (!invoice) {
     return (
@@ -161,6 +164,19 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
     pdf.save(`invoice-${invoice.id}.pdf`);
   };
 
+  useEffect(() => {
+    const shouldDownload = searchParams.get('download') === 'true';
+    if (shouldDownload) {
+      // Small delay to ensure ref is ready
+      const timer = setTimeout(() => {
+        generatePDF();
+        // Clean up URL
+        router.replace(`/dashboard/invoices/${id}`);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, generatePDF, router, id]);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -183,7 +199,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">INVOICE</h1>
-              <p className="text-gray-600">{invoice.id}</p>
+              <p className="text-gray-800">{invoice.id}</p>
               <div className="mt-2 inline-block px-2 py-1 rounded-full text-xs font-semibold 
                 ${invoice.status === 'Paid' ? 'bg-green-100 text-green-800' : 
                   invoice.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
@@ -193,26 +209,26 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
               </div>
             </div>
             <div className="text-right">
-              <p className="font-bold">Your Company Name</p>
-              <p>123 Business Street</p>
-              <p>City, State ZIP</p>
-              <p>contact@yourcompany.com</p>
+              <p className="font-bold text-gray-800">Your Company Name</p>
+              <p className="text-gray-800">123 Business Street</p>
+              <p className="text-gray-800">City, State ZIP</p>
+              <p className="text-gray-800">contact@yourcompany.com</p>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-8 mb-8">
             <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Bill To:</h3>
-              <p className="font-medium">{invoice.client.name}</p>
-              <p>{invoice.client.email}</p>
-              <p className="whitespace-pre-line">{invoice.client.address}</p>
+              <h3 className="font-semibold text-gray-800 mb-2">Bill To:</h3>
+              <p className="font-medium text-gray-800">{invoice.client.name}</p>
+              <p className="text-gray-800">{invoice.client.email}</p>
+              <p className="whitespace-pre-line text-gray-800">{invoice.client.address}</p>
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
-                <p className="text-gray-600">Date:</p>
-                <p className="text-right">{invoice.date}</p>
-                <p className="text-gray-600">Due Date:</p>
-                <p className="text-right">{invoice.dueDate}</p>
+                <p className="text-gray-800">Date:</p>
+                <p className="text-right text-gray-800">{invoice.date}</p>
+                <p className="text-gray-800">Due Date:</p>
+                <p className="text-right text-gray-800">{invoice.dueDate}</p>
               </div>
             </div>
           </div>
@@ -220,19 +236,19 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
           <table className="w-full mb-8">
             <thead>
               <tr className="border-b border-gray-300">
-                <th className="py-2 text-left">Description</th>
-                <th className="py-2 text-right">Quantity</th>
-                <th className="py-2 text-right">Rate</th>
-                <th className="py-2 text-right">Amount</th>
+                <th className="py-2 text-left text-gray-800">Description</th>
+                <th className="py-2 text-right text-gray-800">Quantity</th>
+                <th className="py-2 text-right text-gray-800">Rate</th>
+                <th className="py-2 text-right text-gray-800">Amount</th>
               </tr>
             </thead>
             <tbody>
               {invoice.items.map((item, index) => (
                 <tr key={index} className="border-b border-gray-200">
-                  <td className="py-2">{item.description}</td>
-                  <td className="py-2 text-right">{item.quantity}</td>
-                  <td className="py-2 text-right">${item.rate.toFixed(2)}</td>
-                  <td className="py-2 text-right">${item.amount.toFixed(2)}</td>
+                  <td className="py-2 text-gray-800">{item.description}</td>
+                  <td className="py-2 text-right text-gray-800">{item.quantity}</td>
+                  <td className="py-2 text-right text-gray-800">${item.rate.toFixed(2)}</td>
+                  <td className="py-2 text-right text-gray-800">${item.amount.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -241,28 +257,28 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
           <div className="flex justify-end mb-8">
             <div className="w-1/2">
               <div className="flex justify-between py-2">
-                <span className="font-medium">Subtotal:</span>
-                <span>${invoice.subtotal.toFixed(2)}</span>
+                <span className="font-medium text-gray-800">Subtotal:</span>
+                <span className="text-gray-800">${invoice.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="font-medium">Tax:</span>
-                <span>${invoice.tax.toFixed(2)}</span>
+                <span className="font-medium text-gray-800">Tax:</span>
+                <span className="text-gray-800">${invoice.tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between py-2 border-t border-gray-300">
-                <span className="font-bold">Total:</span>
-                <span className="font-bold">${invoice.total.toFixed(2)}</span>
+                <span className="font-bold text-gray-800">Total:</span>
+                <span className="font-bold text-gray-800">${invoice.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
           
           <div className="mb-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Notes:</h3>
-            <p className="text-gray-600">{invoice.notes}</p>
+            <h3 className="font-semibold text-gray-800 mb-2">Notes:</h3>
+            <p className="text-gray-800">{invoice.notes}</p>
           </div>
           
           <div>
-            <h3 className="font-semibold text-gray-700 mb-2">Terms & Conditions:</h3>
-            <p className="text-gray-600">{invoice.terms}</p>
+            <h3 className="font-semibold text-gray-800 mb-2">Terms & Conditions:</h3>
+            <p className="text-gray-800">{invoice.terms}</p>
           </div>
         </div>
       </div>

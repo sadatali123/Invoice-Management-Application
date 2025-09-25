@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -9,9 +9,9 @@ export default function CreateInvoicePage() {
   const router = useRouter();
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
-    invoiceNumber: `INV-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
-    date: new Date().toISOString().split('T')[0],
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    invoiceNumber: '',
+    date: '',
+    dueDate: '',
     clientName: '',
     clientEmail: '',
     clientAddress: '',
@@ -22,6 +22,18 @@ export default function CreateInvoicePage() {
     tax: 0,
     total: 0
   });
+
+  useEffect(() => {
+    const currentDate = new Date().toISOString().split('T')[0];
+    const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    setFormData(prev => ({
+      ...prev,
+      invoiceNumber: `INV-${randomNumber}`,
+      date: currentDate,
+      dueDate
+    }));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -124,114 +136,114 @@ export default function CreateInvoicePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Invoice Form */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Invoice Details</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">Invoice Details</h2>
           
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Invoice Number</label>
               <input
                 type="text"
                 name="invoiceNumber"
                 value={formData.invoiceNumber}
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
                 readOnly
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-800 mb-1">Date</label>
               <input
                 type="date"
                 name="date"
                 value={formData.date}
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               />
             </div>
           </div>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Due Date</label>
             <input
               type="date"
               name="dueDate"
               value={formData.dueDate}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
             />
           </div>
           
-          <h2 className="text-lg font-semibold mb-4 mt-6">Client Information</h2>
+          <h2 className="text-lg font-semibold mb-4 mt-6 text-gray-800">Client Information</h2>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Client Name</label>
             <input
               type="text"
               name="clientName"
               value={formData.clientName}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               placeholder="Enter client name"
             />
           </div>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Email</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Client Email</label>
             <input
               type="email"
               name="clientEmail"
               value={formData.clientEmail}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               placeholder="Enter client email"
             />
           </div>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Address</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Client Address</label>
             <textarea
               name="clientAddress"
               value={formData.clientAddress}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               placeholder="Enter client address"
               rows={3}
             />
           </div>
           
-          <h2 className="text-lg font-semibold mb-4 mt-6">Items</h2>
+          <h2 className="text-lg font-semibold mb-4 mt-6 text-gray-800">Items</h2>
           
           {formData.items.map((item, index) => (
             <div key={index} className="mb-4 p-4 border border-gray-200 rounded-md">
               <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-800 mb-1">Description</label>
                 <input
                   type="text"
                   value={item.description}
                   onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
                   placeholder="Item description"
                 />
               </div>
               
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Quantity</label>
                   <input
                     type="number"
                     value={item.quantity}
                     onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
                     min="1"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
+                  <label className="block text-sm font-medium text-gray-800 mb-1">Rate</label>
                   <input
                     type="number"
                     value={item.rate}
                     onChange={(e) => handleItemChange(index, 'rate', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
                     min="0"
                     step="0.01"
                   />
@@ -268,24 +280,24 @@ export default function CreateInvoicePage() {
           </button>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Notes</label>
             <textarea
               name="notes"
               value={formData.notes}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               placeholder="Additional notes"
               rows={3}
             />
           </div>
           
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Terms & Conditions</label>
+            <label className="block text-sm font-medium text-gray-800 mb-1">Terms & Conditions</label>
             <textarea
               name="terms"
               value={formData.terms}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-gray-300 rounded-md text-gray-800 bg-white"
               rows={3}
             />
           </div>
@@ -293,35 +305,35 @@ export default function CreateInvoicePage() {
         
         {/* Invoice Preview */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Invoice Preview</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">Invoice Preview</h2>
           
           <div ref={invoiceRef} className="p-6 border border-gray-200 rounded-md bg-white">
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">INVOICE</h1>
-                <p className="text-gray-600">{formData.invoiceNumber}</p>
+                <p className="text-gray-800">{formData.invoiceNumber}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold">Your Company Name</p>
-                <p>123 Business Street</p>
-                <p>City, State ZIP</p>
-                <p>contact@yourcompany.com</p>
+                <p className="font-bold text-gray-800">Your Company Name</p>
+                <p className="text-gray-800">123 Business Street</p>
+                <p className="text-gray-800">City, State ZIP</p>
+                <p className="text-gray-800">contact@yourcompany.com</p>
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="font-semibold text-gray-700 mb-2">Bill To:</h3>
-                <p className="font-medium">{formData.clientName || 'Client Name'}</p>
-                <p>{formData.clientEmail || 'client@example.com'}</p>
-                <p className="whitespace-pre-line">{formData.clientAddress || 'Client Address'}</p>
+                <h3 className="font-semibold text-gray-800 mb-2">Bill To:</h3>
+                <p className="font-medium text-gray-800">{formData.clientName || 'Client Name'}</p>
+                <p className="text-gray-800">{formData.clientEmail || 'client@example.com'}</p>
+                <p className="text-gray-800 whitespace-pre-line">{formData.clientAddress || 'Client Address'}</p>
               </div>
               <div>
                 <div className="grid grid-cols-2 gap-2">
-                  <p className="text-gray-600">Date:</p>
-                  <p className="text-right">{formData.date}</p>
-                  <p className="text-gray-600">Due Date:</p>
-                  <p className="text-right">{formData.dueDate}</p>
+                  <p className="text-gray-800">Date:</p>
+                  <p className="text-right text-gray-800">{formData.date}</p>
+                  <p className="text-gray-800">Due Date:</p>
+                  <p className="text-right text-gray-800">{formData.dueDate}</p>
                 </div>
               </div>
             </div>
@@ -329,19 +341,19 @@ export default function CreateInvoicePage() {
             <table className="w-full mb-8">
               <thead>
                 <tr className="border-b border-gray-300">
-                  <th className="py-2 text-left">Description</th>
-                  <th className="py-2 text-right">Quantity</th>
-                  <th className="py-2 text-right">Rate</th>
-                  <th className="py-2 text-right">Amount</th>
+                  <th className="py-2 text-left text-gray-800">Description</th>
+                  <th className="py-2 text-right text-gray-800">Quantity</th>
+                  <th className="py-2 text-right text-gray-800">Rate</th>
+                  <th className="py-2 text-right text-gray-800">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {formData.items.map((item, index) => (
                   <tr key={index} className="border-b border-gray-200">
-                    <td className="py-2">{item.description || 'Item description'}</td>
-                    <td className="py-2 text-right">{item.quantity}</td>
-                    <td className="py-2 text-right">${Number(item.rate).toFixed(2)}</td>
-                    <td className="py-2 text-right">${Number(item.amount).toFixed(2)}</td>
+                    <td className="py-2 text-gray-800">{item.description || 'Item description'}</td>
+                    <td className="py-2 text-right text-gray-800">{item.quantity}</td>
+                    <td className="py-2 text-right text-gray-800">${Number(item.rate).toFixed(2)}</td>
+                    <td className="py-2 text-right text-gray-800">${Number(item.amount).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -350,28 +362,28 @@ export default function CreateInvoicePage() {
             <div className="flex justify-end mb-8">
               <div className="w-1/2">
                 <div className="flex justify-between py-2">
-                  <span className="font-medium">Subtotal:</span>
-                  <span>${formData.subtotal.toFixed(2)}</span>
+                  <span className="font-medium text-gray-800">Subtotal:</span>
+                  <span className="text-gray-800">${formData.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between py-2">
-                  <span className="font-medium">Tax (10%):</span>
-                  <span>${formData.tax.toFixed(2)}</span>
+                  <span className="font-medium text-gray-800">Tax (10%):</span>
+                  <span className="text-gray-800">${formData.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-t border-gray-300">
-                  <span className="font-bold">Total:</span>
-                  <span className="font-bold">${formData.total.toFixed(2)}</span>
+                  <span className="font-bold text-gray-800">Total:</span>
+                  <span className="font-bold text-gray-800">${formData.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
             
             <div className="mb-4">
-              <h3 className="font-semibold text-gray-700 mb-2">Notes:</h3>
-              <p className="text-gray-600">{formData.notes || 'No notes'}</p>
+              <h3 className="font-semibold text-gray-800 mb-2">Notes:</h3>
+              <p className="text-gray-800">{formData.notes || 'No notes'}</p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Terms & Conditions:</h3>
-              <p className="text-gray-600">{formData.terms}</p>
+              <h3 className="font-semibold text-gray-800 mb-2">Terms & Conditions:</h3>
+              <p className="text-gray-800">{formData.terms}</p>
             </div>
           </div>
         </div>

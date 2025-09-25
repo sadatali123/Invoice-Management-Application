@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FileText, Download, Eye, Trash2 } from 'lucide-react';
 
 // Sample invoice data
@@ -16,6 +17,7 @@ const sampleInvoices = [
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState(sampleInvoices);
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
 
   const filteredInvoices = invoices.filter(invoice => 
     invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -24,6 +26,10 @@ export default function InvoicesPage() {
 
   const handleDeleteInvoice = (id: string) => {
     setInvoices(invoices.filter(invoice => invoice.id !== id));
+  };
+
+  const handleDownloadInvoice = (id: string) => {
+    router.push(`/dashboard/invoices/${id}?download=true`);
   };
 
   return (
@@ -85,7 +91,7 @@ export default function InvoicesPage() {
                     <Link href={`/dashboard/invoices/${invoice.id}`} className="text-blue-600 hover:text-blue-900">
                       <Eye className="h-5 w-5" />
                     </Link>
-                    <button className="text-green-600 hover:text-green-900">
+                    <button onClick={() => handleDownloadInvoice(invoice.id)} className="text-green-600 hover:text-green-900">
                       <Download className="h-5 w-5" />
                     </button>
                     <button 
